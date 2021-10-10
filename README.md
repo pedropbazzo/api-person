@@ -1,7 +1,3 @@
-
-## Baixar
-git clone https://github.com/sartorileonardo/cadastro-pessoa.git
-
 ## Executar
 Na pasta demo rodar: mvn spring-boot:run
 
