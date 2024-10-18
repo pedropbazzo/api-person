@@ -66,12 +66,16 @@ public class PessoaController {
                 }).orElse(ResponseEntity.notFound().build());
     }
 
-    @ApiOperation(value = "Remove uma pessoa cadastrada atraves do seu identificador(ID)")
-    @DeleteMapping(path = "/{id}")
-    public ResponseEntity<?> delete(@PathVariable Integer id){
+   @ApiOperation(value = "Remove uma pessoa cadastrada através do seu identificador (ID)")
+@DeleteMapping("/{id}")
+public ResponseEntity<Void> delete(@PathVariable Integer id) {
+    if (repository.existsById(id)) {
         repository.deleteById(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok().build();
+    } else {
+        return ResponseEntity.notFound().build();
     }
+}
 
     @ApiOperation(value = "Remove todas as pessoas cadastradas")
     @DeleteMapping(path = "/deleteAll")
