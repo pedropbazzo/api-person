@@ -38,16 +38,29 @@ public class PessoaServiceImpl implements PessoaService {
 
     @Override
     public Pessoa update(Integer id, Pessoa pessoa) {
-        return repository.findById(id).map(p -> {
-            p.setNome(pessoa.getNome());
-            p.setSexo(pessoa.getSexo());
-            p.setEmail(pessoa.getEmail());
-            p.setDataNascimento(pessoa.getDataNascimento());
-            p.setNaturalidade(pessoa.getNaturalidade());
-            p.setNacionalidade(pessoa.getNacionalidade());
-            p.setCpf(pessoa.getCpf());
-            return repository.save(p);
-        }).orElseThrow(() -> new EmptyResultDataAccessException(1));
+        return repository.findById(id)
+            .map(existingPessoa -> {
+                updatePessoaFields(existingPessoa, pessoa);
+                return repository.save(existingPessoa);
+            })
+            .orElseThrow(() -> new PessoaNotFoundException(id));
+    }
+
+    private void updatePessoaFields(Pessoa existingPessoa, Pessoa pessoa) {
+        existingPessoa.setNome(pessoa.getNome());
+        existingPessoa.setSexo(pessoa.getSexo());
+        existingPessoa.setEmail(pessoa.getEmail());
+        existingPessoa.setDataNascimento(pessoa.getDataNascimento());
+        existingPessoa.setNaturalidade(pessoa.getNaturalidade());
+        existingPessoa.setNacionalidade(pessoa.getNacionalidade());
+        existingPessoa.setCpf(pessoa.getCpf());
+    }
+
+    @SuppressWarnings("serial")
+	public class PessoaNotFoundException extends RuntimeException {
+        public PessoaNotFoundException(Integer id) {
+            super("Pessoa com ID " + id + " não encontrada.");
+        }
     }
 
     @Override
