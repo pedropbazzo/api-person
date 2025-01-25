@@ -13,12 +13,16 @@ import org.springframework.stereotype.Service;
 @Service
 public class PessoaServiceImpl implements PessoaService {
 
+	private final PessoaRepository pessoaRepository;
+
 	@Autowired
-	private PessoaRepository pessoaRepository;
+	public PessoaServiceImpl(PessoaRepository pessoaRepository) {
+		this.pessoaRepository = pessoaRepository;
+	}
 
 	@Override
-	public Pessoa getPessoa(Integer id) {
-		return pessoaRepository.findById(id).orElse(null);
+	public Optional<Pessoa> getPessoa(Integer id) {
+		return pessoaRepository.findById(id);
 	}
 
 	public Pessoa savePessoa(Pessoa pessoa) {
@@ -47,17 +51,18 @@ public class PessoaServiceImpl implements PessoaService {
 
 	@Override
 	public Pessoa update(Integer id, Pessoa pessoa) {
-		return pessoaRepository.findById(id).map(existingPessoa -> {
-			existingPessoa.setNome(pessoa.getNome());
-			existingPessoa.setCpf(pessoa.getCpf());
-			existingPessoa.setDataNascimento(pessoa.getDataNascimento());
-			existingPessoa.setEmail(pessoa.getEmail());
-			existingPessoa.setId(pessoa.getId());
-			existingPessoa.setNacionalidade(pessoa.getNacionalidade());
-			existingPessoa.setNaturalidade(pessoa.getNaturalidade());
-			existingPessoa.setSexo(pessoa.getSexo());
-			return pessoaRepository.save(existingPessoa);
-		}).orElseThrow(() -> new IllegalArgumentException("Pessoa not found with id: " + id));
+		return pessoaRepository.findById(id)
+			.map(existingPessoa -> {
+				existingPessoa.setNome(pessoa.getNome());
+				existingPessoa.setCpf(pessoa.getCpf());
+				existingPessoa.setDataNascimento(pessoa.getDataNascimento());
+				existingPessoa.setEmail(pessoa.getEmail());
+				existingPessoa.setNacionalidade(pessoa.getNacionalidade());
+				existingPessoa.setNaturalidade(pessoa.getNaturalidade());
+				existingPessoa.setSexo(pessoa.getSexo());
+				return pessoaRepository.save(existingPessoa);
+			})
+			.orElseThrow(() -> new IllegalArgumentException("Pessoa not found with id: " + id));
 	}
 
 	@Override

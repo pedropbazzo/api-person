@@ -13,5 +13,5 @@ public interface PessoaService {
     Pessoa update(Integer id, Pessoa pessoa);
     void delete(Integer id);
     void deleteAll();
-	Pessoa getPessoa(Integer id);
+	Optional<Pessoa> getPessoa(Integer id);
 }
