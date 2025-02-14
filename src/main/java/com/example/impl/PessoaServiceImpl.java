@@ -4,28 +4,30 @@ import com.example.model.Pessoa;
 import com.example.repository.PessoaRepository;
 import com.example.service.PessoaService;
 
-import java.util.List;
-import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import java.util.List;
+import java.util.Optional;
 
 @Service
-public class PessoaServiceImpl implements PessoaService {
+@RequiredArgsConstructor
+public abstract class PessoaServiceImpl implements PessoaService {
 
-	private final PessoaRepository pessoaRepository;
-
-	@Autowired
-	public PessoaServiceImpl(PessoaRepository pessoaRepository) {
-		this.pessoaRepository = pessoaRepository;
-	}
+	private PessoaRepository pessoaRepository;
 
 	@Override
-	public Optional<Pessoa> getPessoa(Integer id) {
+	public Optional<Pessoa> getById(Integer id) {
 		return pessoaRepository.findById(id);
 	}
 
-	public Pessoa savePessoa(Pessoa pessoa) {
+	@Transactional
+	public Pessoa savePessoa(@Valid @NotNull Pessoa pessoa) {
 		return pessoaRepository.save(pessoa);
 	}
 
@@ -35,42 +37,41 @@ public class PessoaServiceImpl implements PessoaService {
 	}
 
 	@Override
-	public Optional<Pessoa> getById(Integer id) {
-		return pessoaRepository.findById(id);
-	}
-
-	@Override
 	public List<Pessoa> findByNomeIgnoreCaseContainingOrderByNomeAsc(String nome) {
 		return pessoaRepository.findByNomeIgnoreCaseContainingOrderByNomeAsc(nome);
 	}
 
 	@Override
-	public Pessoa create(Pessoa pessoa) {
+	@Transactional
+	public Pessoa create(@Valid @NotNull Pessoa pessoa) {
 		return pessoaRepository.save(pessoa);
 	}
 
 	@Override
-	public Pessoa update(Integer id, Pessoa pessoa) {
-		return pessoaRepository.findById(id)
-			.map(existingPessoa -> {
-				existingPessoa.setNome(pessoa.getNome());
-				existingPessoa.setCpf(pessoa.getCpf());
-				existingPessoa.setDataNascimento(pessoa.getDataNascimento());
-				existingPessoa.setEmail(pessoa.getEmail());
-				existingPessoa.setNacionalidade(pessoa.getNacionalidade());
-				existingPessoa.setNaturalidade(pessoa.getNaturalidade());
-				existingPessoa.setSexo(pessoa.getSexo());
-				return pessoaRepository.save(existingPessoa);
-			})
-			.orElseThrow(() -> new IllegalArgumentException("Pessoa not found with id: " + id));
+	@Transactional
+	public Pessoa update(@NotNull Integer id, @Valid @NotNull Pessoa pessoa) {
+		Pessoa existingPessoa = pessoaRepository.findById(id)
+				.orElseThrow(() -> new IllegalArgumentException("Pessoa not found with id: " + id));
+
+		existingPessoa.setNome(pessoa.getNome());
+		existingPessoa.setCpf(pessoa.getCpf());
+		existingPessoa.setDataNascimento(pessoa.getDataNascimento());
+		existingPessoa.setEmail(pessoa.getEmail());
+		existingPessoa.setNacionalidade(pessoa.getNacionalidade());
+		existingPessoa.setNaturalidade(pessoa.getNaturalidade());
+		existingPessoa.setSexo(pessoa.getSexo());
+
+		return pessoaRepository.save(existingPessoa);
 	}
 
 	@Override
-	public void delete(Integer id) {
+	@Transactional
+	public void delete(@NotNull Integer id) {
 		pessoaRepository.deleteById(id);
 	}
 
 	@Override
+	@Transactional
 	public void deleteAll() {
 		pessoaRepository.deleteAll();
 	}
